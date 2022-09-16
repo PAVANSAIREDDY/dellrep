@@ -1,0 +1,25 @@
+node('built-in')
+{
+    stage('continuousdownload')
+    {
+        git 'https://github.com/PAVANSAIREDDY/dellrep.git'
+    }
+    stage('continuousbuild')
+    {
+        sh 'mvn package'
+    }
+    stage('continuousdeployment')
+    {
+        deploy adapters: [tomcat9(credentialsId: '53c61166-404e-4e0d-a7ff-fa3a00f67dcb', path: '', url: 'http://172.31.94.8:8080')], contextPath: 'testap', war: '**/*.war'
+    }
+    stage('continuoustesting')
+    {
+        git 'https://github.com/PAVANSAIREDDY/testing.git'
+        sh 'java -jar /home/ubuntu/.jenkins/workspace/scriptedpipeline/testing.jar'
+        
+    }
+    stage('continuousdelivery')
+    {
+        deploy adapters: [tomcat9(credentialsId: '53c61166-404e-4e0d-a7ff-fa3a00f67dcb', path: '', url: 'http://172.31.84.88:8080')], contextPath: 'webapp', war: '**/*.war'
+    }
+}
